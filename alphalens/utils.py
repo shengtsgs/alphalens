@@ -139,20 +139,20 @@ def quantize_factor(factor_data,
     def quantile_calc(x, _quantiles, _bins, _zero_aware, _no_raise):
         try:
             if _quantiles is not None and _bins is None and not _zero_aware:
-                return pd.qcut(x, _quantiles, labels=False) + 1
+                return pd.qcut(x, _quantiles, labels=False, duplicates='drop') + 1
             elif _quantiles is not None and _bins is None and _zero_aware:
                 pos_quantiles = pd.qcut(x[x >= 0], _quantiles // 2,
-                                        labels=False) + _quantiles // 2 + 1
+                                        labels=False, duplicates='drop') + _quantiles // 2 + 1
                 neg_quantiles = pd.qcut(x[x < 0], _quantiles // 2,
-                                        labels=False) + 1
+                                        labels=False, duplicates='drop') + 1
                 return pd.concat([pos_quantiles, neg_quantiles]).sort_index()
             elif _bins is not None and _quantiles is None and not _zero_aware:
-                return pd.cut(x, _bins, labels=False) + 1
+                return pd.cut(x, _bins, labels=False, duplicates='drop') + 1
             elif _bins is not None and _quantiles is None and _zero_aware:
                 pos_bins = pd.cut(x[x >= 0], _bins // 2,
-                                  labels=False) + _bins // 2 + 1
+                                  labels=False, duplicates='drop') + _bins // 2 + 1
                 neg_bins = pd.cut(x[x < 0], _bins // 2,
-                                  labels=False) + 1
+                                  labels=False, duplicates='drop') + 1
                 return pd.concat([pos_bins, neg_bins]).sort_index()
         except Exception as e:
             if _no_raise:
@@ -166,6 +166,9 @@ def quantize_factor(factor_data,
     factor_quantile = factor_data.groupby(grouper)['factor'] \
         .apply(quantile_calc, quantiles, bins, zero_aware, no_raise)
     factor_quantile.name = 'factor_quantile'
+
+    if len(factor_quantile.index.names) > 2:
+        factor_quantile.index = factor_quantile.index.droplevel(0)
 
     return factor_quantile.dropna()
 
@@ -316,7 +319,7 @@ def compute_forward_returns(factor,
             period_len = diff_custom_calendar_timedeltas(start, end, freq)
             days_diffs.append(period_len.components.days)
 
-        delta_days = period_len.components.days - mode(days_diffs).mode[0]
+        delta_days = period_len.components.days - mode(days_diffs).mode#[0]
         period_len -= pd.Timedelta(days=delta_days)
         label = timedelta_to_string(period_len)
 

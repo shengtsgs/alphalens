@@ -201,6 +201,8 @@ def factor_weights(factor_data,
 
     if group_adjust:
         weights = weights.groupby(level='date').apply(to_weights, False, False)
+    if len(weights.index.names) > 2:
+        weights.index = weights.index.droplevel(0)
 
     return weights
 
@@ -251,6 +253,9 @@ def factor_returns(factor_data,
         returns = weighted_returns
     else:
         returns = weighted_returns.groupby(level='date').sum()
+
+    if len(returns.index.names) > 2:
+        returns.index = returns.index.droplevel(0)
 
     return returns
 
