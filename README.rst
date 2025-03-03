@@ -25,6 +25,9 @@ and plots about an alpha factor, including:
 -  Turnover Analysis
 -  Grouped Analysis
 
+Note:
+Fix bug to support python 3.10
+
 Getting started
 ---------------
 
