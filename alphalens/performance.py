@@ -200,6 +200,8 @@ def factor_weights(factor_data,
         .apply(to_weights, demeaned, equal_weight)
 
     if group_adjust:
+        if len(weights.index.names) > 2:
+            weights.index = weights.index.droplevel(0)
         weights = weights.groupby(level='date').apply(to_weights, False, False)
     if len(weights.index.names) > 2:
         weights.index = weights.index.droplevel(0)

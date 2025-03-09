@@ -179,7 +179,11 @@ def plot_information_table(ic_data):
     utils.print_table(ic_summary_table.apply(lambda x: x.round(3)).T)
 
 
-def plot_quantile_statistics_table(factor_data):
+def plot_quantile_statistics_table(factor_data_i):
+    factor_data = factor_data_i.copy()
+    for col in factor_data.columns.to_list():
+        if isinstance(factor_data[col].dtype, pd.CategoricalDtype):
+            factor_data.drop(columns = col, inplace = True)
     quantile_stats = factor_data.groupby('factor_quantile') \
         .agg(['min', 'max', 'mean', 'std', 'count'])['factor']
     quantile_stats['count %'] = quantile_stats['count'] \
